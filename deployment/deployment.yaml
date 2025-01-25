@@ -22,3 +22,17 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todolistcarlos-service
+spec:
+  type: NodePort
+  selector:
+    app: todolistcarlos
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30080
