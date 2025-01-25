@@ -18,11 +18,11 @@ spec:
     image: gradle:latest
     resources:
       requests:
-        memory: "1Gi"
-        cpu: "500m"
-      limits:
         memory: "2Gi"
         cpu: "1000m"
+      limits:
+        memory: "4Gi"
+        cpu: "2000m"
   volumes:
   - name: workspace
     emptyDir: {}
@@ -67,7 +67,7 @@ spec:
                     script {
                         // Construir la imagen Docker usando el archivo .jar generado
                         sh """
-                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
+                        docker build -f deployment/Dockerfile -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
                         """
                     }
                 }
