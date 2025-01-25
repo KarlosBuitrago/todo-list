@@ -3,16 +3,17 @@ pipeline {
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
-        DOCKER_IMAGE = "todolistcarlos/todolistcarlos:latest"
+        DOCKER_REGISTRY = "192.168.0.100:32500"
+        IMAGE_IMAGE = "todolistcarlos"
+        IMAGE_TAG = "latest"
         KUBECONFIG_CREDENTIALS_ID = '5c901259-27f9-49c5-abcf-6351cfe129c1'
     }
 
     stages {
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(DOCKER_IMAGE, '-f deployment/Dockerfile .')
+                    docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
                 }
             }
         }
@@ -20,8 +21,8 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://192.168.0.100:32500/v2/_catalog/', '') {
-                        docker.image(DOCKER_IMAGE).push()
+                    docker.withRegistry("http://${DOCKER_REGISTRY}", '') {
+                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}").push()
                     }
                 }
             }
