@@ -15,10 +15,10 @@ spec:
         app: todolistcarlos
     spec:
       containers:
-      - name: todolistcarlos
-        image: 192.168.0.100:32500/v2/catalog/todolistcarlos:latest
-        ports:
-        - containerPort: 8080
-        env:
-        - name: SPRING_PROFILES_ACTIVE
-          value: "prod"
+        - name: todolistcarlos
+          image: 192.168.0.100:32500/todolistcarlos:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
