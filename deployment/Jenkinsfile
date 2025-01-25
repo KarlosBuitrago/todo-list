@@ -7,7 +7,7 @@ kind: Pod
 spec:
   containers:
   - name: builder
-    image: <your-preferred-gradle-builder-image>
+    image: gradle:latest
     command: ["/bin/sh", "-c", "gradlew build -x test"]
   volumes:
   - name: workspace
