@@ -27,10 +27,18 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy TodoListCarlos to Kubernetes') {
+                    steps {
+                        withCredentials(bindings: [string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api-token')]) {
+                            sh "kubectl --token $api_token --server https://192.168.0.100:31919 --insecure-skip-tls-verify=true get ns"
+                        }
+                    }
+                }
+
+        stage('Deploy to pods Kubernetes') {
             steps {
-                withKubeConfig([credentialsId: KUBECONFIG_CREDENTIALS_ID]) {
-                    sh 'kubectl apply -f deployment/deployment.yaml'
+                withCredentials(bindings: [string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api-token')]) {
+                    sh 'kubectl --token $api_token --server https://192.168.0.100:31919 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml'
                     sh 'kubectl apply -f deployment/service.yaml'
                 }
             }
