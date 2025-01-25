@@ -1,9 +1,8 @@
 pipeline {
     agent {
-        dockerfile {
-            filename 'Dockerfile'
-            dir 'deployment/Dockerfile'
-            label 'docker'
+        docker {
+            image 'docker:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
 
@@ -18,7 +17,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build(DOCKER_IMAGE)
+                    docker.build(DOCKER_IMAGE, '-f deployment/Dockerfile .')
                 }
             }
         }
