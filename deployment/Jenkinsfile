@@ -28,14 +28,37 @@ spec:
         IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
         KUBECONFIG_CREDENTIALS_ID = '5c901259-27f9-49c5-abcf-6351cfe129c1'
+        DOCKER_CREDENTIALS_ID = 'docker-credentials-id' // Cambia por el ID de credenciales en Jenkins
     }
 
     stages {
+        stage('Checkout Source Code') {
+            steps {
+                script {
+                    checkout scm
+                }
+            }
+        }
+
+        stage('Build Application with Gradle') {
+            steps {
+                container('docker') {
+                    script {
+                        // Construir el proyecto con Gradle y generar el .jar
+                        sh './gradlew build -x test'
+                    }
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 container('docker') {
                     script {
-                        sh "docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} ."
+                        // Construir la imagen Docker usando el archivo .jar generado
+                        sh """
+                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
+                        """
                     }
                 }
             }
@@ -44,9 +67,14 @@ spec:
         stage('Push Docker Image') {
             steps {
                 container('docker') {
-                    script {
-                        sh "docker login ${DOCKER_REGISTRY} -u username -p password" // Cambia a tu usuario y contraseña si tienes autenticación
-                        sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        script {
+                            // Loguearse en el Docker Registry
+                            sh "docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+
+                            // Subir la imagen al registry
+                            sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                        }
                     }
                 }
             }
@@ -54,13 +82,25 @@ spec:
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api_token')]) {
-                    sh """
-                    kubectl --token $api_token --server https://192.168.0.100:31919 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
-                    kubectl apply -f deployment/service.yaml
-                    """
+                withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_TOKEN')]) {
+                    script {
+                        // Desplegar la imagen en Kubernetes
+                        sh """
+                        kubectl --token=${KUBECONFIG_TOKEN} --server=https://192.168.0.100:31919 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
+                        kubectl apply -f deployment/service.yaml
+                        """
+                    }
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully!"
+        }
+        failure {
+            echo "Pipeline failed!"
         }
     }
 }
