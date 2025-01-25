@@ -1,10 +1,29 @@
 pipeline {
-    agent any
+    kubernetes {
+        yaml """
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: docker
+            image: docker:24.0.2
+            command:
+            - cat
+            tty: true
+            volumeMounts:
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+          volumes:
+          - name: docker-sock
+            hostPath:
+              path: /var/run/docker.sock
+        """
+    }
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
         DOCKER_REGISTRY = "192.168.0.100:32500"
-        IMAGE_IMAGE = "todolistcarlos"
+        IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
         KUBECONFIG_CREDENTIALS_ID = '5c901259-27f9-49c5-abcf-6351cfe129c1'
     }
@@ -29,17 +48,17 @@ pipeline {
         }
 
         stage('Deploy TodoListCarlos to Kubernetes') {
-                    steps {
-                        withCredentials(bindings: [string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api-token')]) {
-                            sh "kubectl --token $api_token --server https://192.168.0.100:31919 --insecure-skip-tls-verify=true get ns"
-                        }
-                    }
+            steps {
+                withKubeConfig([credentialsId: KUBECONFIG_CREDENTIALS_ID]) {
+                    sh 'kubectl get ns'
                 }
+            }
+        }
 
         stage('Deploy to pods Kubernetes') {
             steps {
-                withCredentials(bindings: [string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api-token')]) {
-                    sh 'kubectl --token $api_token --server https://192.168.0.100:31919 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml'
+                withKubeConfig([credentialsId: KUBECONFIG_CREDENTIALS_ID]) {
+                    sh 'kubectl apply -f deployment/deployment.yaml'
                     sh 'kubectl apply -f deployment/service.yaml'
                 }
             }
