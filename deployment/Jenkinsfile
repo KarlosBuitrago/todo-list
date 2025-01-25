@@ -9,6 +9,9 @@ spec:
   - name: builder
     image: gradle:latest
     command: ["/bin/sh", "-c", "gradlew build -x test"]
+  - name: docker
+    image: docker:latest
+    command: ["/bin/sh", "-c", "sleep infinity"]  # Mantén el contenedor docker en ejecución
   volumes:
   - name: workspace
     emptyDir: {}
