@@ -1,23 +1,25 @@
 pipeline {
-    kubernetes {
-        yaml """
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-          - name: docker
-            image: docker:24.0.2
-            command:
-            - cat
-            tty: true
-            volumeMounts:
-            - name: docker-sock
-              mountPath: /var/run/docker.sock
-          volumes:
-          - name: docker-sock
-            hostPath:
-              path: /var/run/docker.sock
-        """
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: docker
+    image: docker:20.10.7
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-socket
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: docker-socket
+    hostPath:
+      path: /var/run/docker.sock
+"""
+        }
     }
 
     environment {
@@ -31,35 +33,32 @@ pipeline {
     stages {
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}")
+                container('docker') {
+                    script {
+                        sh "docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} ."
+                    }
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    docker.withRegistry("http://${DOCKER_REGISTRY}", '') {
-                        docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}").push()
+                container('docker') {
+                    script {
+                        sh "docker login ${DOCKER_REGISTRY} -u username -p password" // Cambia a tu usuario y contraseña si tienes autenticación
+                        sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
             }
         }
 
-        stage('Deploy TodoListCarlos to Kubernetes') {
+        stage('Deploy to Kubernetes') {
             steps {
-                withKubeConfig([credentialsId: KUBECONFIG_CREDENTIALS_ID]) {
-                    sh 'kubectl get ns'
-                }
-            }
-        }
-
-        stage('Deploy to pods Kubernetes') {
-            steps {
-                withKubeConfig([credentialsId: KUBECONFIG_CREDENTIALS_ID]) {
-                    sh 'kubectl apply -f deployment/deployment.yaml'
-                    sh 'kubectl apply -f deployment/service.yaml'
+                withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api_token')]) {
+                    sh """
+                    kubectl --token $api_token --server https://192.168.0.100:31919 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
+                    kubectl apply -f deployment/service.yaml
+                    """
                 }
             }
         }
