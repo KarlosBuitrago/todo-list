@@ -12,8 +12,8 @@ spec:
     - cat
     tty: true
     volumeMounts:
-    - name: workspace
-      mountPath: /workspace  # Asegúrate de que mountPath esté correctamente configurado
+  - name: docker-socket
+    mountPath: /var/run/docker.sock
   - name: builder
     image: gradle:latest
     resources:
