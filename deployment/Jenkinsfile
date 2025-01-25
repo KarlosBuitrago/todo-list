@@ -13,7 +13,7 @@ spec:
     tty: true
     volumeMounts:
     - name: workspace
-    mountPath: /workspace
+      mountPath: /workspace  # Asegúrate de que mountPath esté correctamente configurado
   - name: builder
     image: gradle:latest
     resources:
@@ -26,7 +26,6 @@ spec:
   volumes:
   - name: workspace
     emptyDir: {}
-
 """
         }
     }
