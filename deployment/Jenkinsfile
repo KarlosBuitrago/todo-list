@@ -1,44 +1,44 @@
 pipeline {
-
-    agent any
+    agent {
+        dockerfile {
+            filename 'Dockerfile'
+            dir 'deployment/Dockerfile'
+            label 'docker'
+        }
+    }
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
+        DOCKER_IMAGE = "todolistcarlos/todolistcarlos:latest"
+        KUBECONFIG_CREDENTIALS_ID = '5c901259-27f9-49c5-abcf-6351cfe129c1'
     }
 
     stages {
-        stage('Build and Unit Tests') {
+
+        stage('Build Docker Image') {
             steps {
-                sh "./gradlew clean build jacocoMergedReport --no-daemon --continue"
-            }
-            post {
-                always {
-                    junit '**/build/test-results/test/TEST-*.xml'
-                    publishCoverage adapters: [jacocoAdapter('build/reports/jacocoMergedReport/jacocoMergedReport.xml')]
+                script {
+                    docker.build(DOCKER_IMAGE)
                 }
             }
         }
-        stage ('Code Analysis') {
+
+        stage('Push Docker Image') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                sh "./gradlew sonarqube \
-                  -Dsonar.projectKey=${PROJECT_NAME} \
-                  -Dsonar.projectName=${PROJECT_NAME} \
-                  -Dsonar.projectVersion=${BUILD_NUMBER} \
-                  -Dsonar.host.url=${env.SONAR_HOST_URL} \
-                  -Dsonar.login=${env.SONAR_AUTH_TOKEN} \
-                  --no-daemon"
+                script {
+                    docker.withRegistry('https://192.168.0.100:32500/v2/_catalog/', '') {
+                        docker.image(DOCKER_IMAGE).push()
+                    }
                 }
-             }
-        }
-        stage("Quality gate") {
-            steps {
-                waitForQualityGate abortPipeline: true
             }
         }
-        stage('Publish Artifact') {
+
+        stage('Deploy to Kubernetes') {
             steps {
-                archiveArtifacts artifacts: 'applications/app-service/build/libs/*.jar'
+                withKubeConfig([credentialsId: KUBECONFIG_CREDENTIALS_ID]) {
+                    sh 'kubectl apply -f deployment/deployment.yaml'
+                    sh 'kubectl apply -f deployment/service.yaml'
+                }
             }
         }
     }

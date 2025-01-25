@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todolistcarlos-deployment
+  labels:
+    app: todolistcarlos
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: todolistcarlos
+  template:
+    metadata:
+      labels:
+        app: todolistcarlos
+    spec:
+      containers:
+      - name: todolistcarlos
+        image: 192.168.0.100:32500/v2/catalog/todolistcarlos:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "prod"
