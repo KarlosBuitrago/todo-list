@@ -3,5 +3,8 @@ package net.dev.carlosdev.jpa;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
 
-public interface JPARepository extends CrudRepository<Object/* change for adapter model */, String>, QueryByExampleExecutor<Object/* change for adapter model */> {
+import net.dev.carlosdev.jpa.jpa.TasksDto;
+
+public interface JPARepository extends CrudRepository<TasksDto/* change for adapter model */, String>, QueryByExampleExecutor<TasksDto/* change for adapter model */> {
+
 }
