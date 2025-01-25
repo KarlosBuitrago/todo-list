@@ -1,27 +1,20 @@
 pipeline {
-    agent any
-//  {
-//         kubernetes {
-//             yaml """
-// apiVersion: v1
-// kind: Pod
-// spec:
-//   containers:
-//   - name: docker
-//     image: docker:20.10.7
-//     command:
-//     - cat
-//     tty: true
-//     volumeMounts:
-//     - name: docker-socket
-//       mountPath: /var/run/docker.sock
-//   volumes:
-//   - name: docker-socket
-//     hostPath:
-//       path: /var/run/docker.sock
-// """
-//         }
-//     }
+    agent  {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: builder
+    image: <your-preferred-gradle-builder-image>
+    command: ["/bin/sh", "-c", "gradlew build -x test"]
+  volumes:
+  - name: workspace
+    emptyDir: {}
+"""
+        }
+    }
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
@@ -76,7 +69,7 @@ pipeline {
             }
         }
 
-        stage('Deploy billing App') {
+        stage('Deploy todolistcarlos App') {
                  steps {
                     withCredentials(bindings: [
                               string(credentialsId: 'KUBECONFIG_CREDENTIALS_ID', variable: 'api_token')
@@ -87,7 +80,7 @@ pipeline {
                 }
               }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy todolistcarlos to Kubernetes') {
             steps {
                 withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api-token')]) {
                     script {
