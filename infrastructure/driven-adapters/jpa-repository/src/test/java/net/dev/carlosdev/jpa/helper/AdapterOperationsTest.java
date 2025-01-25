@@ -2,6 +2,8 @@ package net.dev.carlosdev.jpa.helper;
 
 import net.dev.carlosdev.jpa.JPARepository;
 import net.dev.carlosdev.jpa.JPARepositoryAdapter;
+import net.dev.carlosdev.model.tasks.Tasks;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -40,9 +42,9 @@ class AdapterOperationsTest {
 
         Object objectValue = "value";
 
-        when(repository.save(objectValue)).thenReturn(objectValue);
+        when(repository.save((S) objectValue)).thenReturn(objectValue);
 
-        Object result = adapter.save(objectValue);
+        Object result = adapter.save((Tasks) objectValue);
 
         assertEquals(result, objectValue);
     }
