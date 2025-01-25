@@ -1,5 +1,5 @@
 package net.dev.carlosdev.api;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import net.dev.carlosdev.model.tasks.Tasks;
 import net.dev.carlosdev.usecase.managetasks.ManageTasksUseCase;
 import org.springframework.http.MediaType;
@@ -13,22 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * API Rest controller.
- * 
- * Example of how to declare and use a use case:
- * <pre>
- * private final MyUseCase useCase;
- * 
- * public String commandName() {
- *     return useCase.execute();
- * }
- * </pre>
- */
 @RestController
 @ResponseBody
 @RequestMapping(value = "/api/v1/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class ApiRest {
 
     private final ManageTasksUseCase manageTasksUseCase;
@@ -50,12 +38,12 @@ public class ApiRest {
     }
 
     @PutMapping("/update/{id}")
-    public Tasks updateTask(@PathVariable Long id, @RequestBody Tasks task) {
+    public Tasks updateTask(@PathVariable("id") Long id, @RequestBody Tasks task) {
         return manageTasksUseCase.updateTask(id, task);
     }
 
     @DeleteMapping("/remove/{id}")
-    public void deleteTask(@PathVariable Long id) {
+    public void deleteTask(@PathVariable("id") Long id) {
         manageTasksUseCase.deleteTask(id);
     }
 }

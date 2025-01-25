@@ -6,6 +6,9 @@ import net.dev.carlosdev.model.tasks.Tasks;
 
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
 @Repository
 public class JPARepositoryAdapter extends AdapterOperations<Tasks/* change for domain model */, TasksDto/* change for adapter model */, String, JPARepository>
  //implements TasksRepository
@@ -24,4 +27,9 @@ public class JPARepositoryAdapter extends AdapterOperations<Tasks/* change for d
         repository.deleteById(valueOf);
     }
 
+    public Optional<Tasks> findByName(String name) {
+        return repository.findById(name).stream()
+                .map(d -> mapper.map(d, Tasks.class/* change for domain model */)).findFirst();
+
+    }
 }
