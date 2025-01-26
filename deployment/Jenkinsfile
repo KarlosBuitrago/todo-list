@@ -53,9 +53,9 @@ spec:
                 container('docker') {
                     script {
                         // Listar archivos para verificar que gradlew esté presente
-                        sh 'ls -l'
+                        sh 'ls -l /workspace'  // Verificamos que estamos en el directorio correcto
                         // Construir el proyecto con Gradle y generar el .jar
-                        sh './gradlew build -x test'
+                        sh './gradlew build -x test'  // Esto ejecutará gradle en el directorio correcto
                     }
                 }
             }
