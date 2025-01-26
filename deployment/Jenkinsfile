@@ -43,6 +43,7 @@ spec:
         stage('Checkout Source Code') {
             steps {
                 script {
+                    echo "Checking out source code..."
                     checkout scm
                 }
             }
@@ -50,6 +51,7 @@ spec:
 
         stage("Compile") {
             steps {
+            echo "Compiling the Java code..."
                 sh "./gradlew compileJava"
             }
         }
@@ -74,6 +76,7 @@ spec:
                 container('docker') {
                     script {
                         dir('/deployment/Dockerfile'){
+                        echo "Building Docker Image..."
                             // Construir la imagen Docker usando el archivo .jar generado
                             sh """
                             docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
@@ -88,6 +91,7 @@ spec:
             steps {
                 container('docker') {
                     script {
+                    echo "Pushing Docker Image..."
                         // Subir la imagen al registry
                         sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
                     }
@@ -100,6 +104,7 @@ spec:
                     withCredentials(bindings: [
                               string(credentialsId: 'KUBECONFIG_CREDENTIALS_ID', variable: 'api_token')
                               ]) {
+                              echo "Deploying todolistcarlos App..."
                     sh 'kubectl --token $api_token --server https://192.168.0.100:31919 --insecure-skip-tls-verify=true get ns '
                   }
 
@@ -110,6 +115,7 @@ spec:
             steps {
                 withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api-token')]) {
                     script {
+                        echo "Deploying todolistcarlos to Kubernetes..."
                         // Desplegar la imagen en Kubernetes
                         sh """
                         kubectl --token=$api-token --server=https://192.168.0.100:31919 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
