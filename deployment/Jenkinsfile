@@ -1,42 +1,43 @@
 pipeline {
-    agent  {
-        kubernetes {
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: docker
-    image: docker:latest
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: workspace
-      mountPath: /workspace
-    workingDir: /workspace
-  - name: builder
-    image: gradle:latest
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: workspace
-      mountPath: /workspace
-    workingDir: /workspace
-    resources:
-      requests:
-        memory: "1Gi"
-        cpu: "500m"
-      limits:
-        memory: "2Gi"
-        cpu: "1000m"
-  volumes:
-  - name: workspace
-    emptyDir: {}
-"""
-        }
-    }
+    agent  any
+//     {
+//         kubernetes {
+//             yaml """
+// apiVersion: v1
+// kind: Pod
+// spec:
+//   containers:
+//   - name: docker
+//     image: docker:latest
+//     command:
+//     - cat
+//     tty: true
+//     volumeMounts:
+//     - name: workspace
+//       mountPath: /workspace
+//     workingDir: /workspace
+//   - name: builder
+//     image: gradle:latest
+//     command:
+//     - cat
+//     tty: true
+//     volumeMounts:
+//     - name: workspace
+//       mountPath: /workspace
+//     workingDir: /workspace
+//     resources:
+//       requests:
+//         memory: "1Gi"
+//         cpu: "500m"
+//       limits:
+//         memory: "2Gi"
+//         cpu: "1000m"
+//   volumes:
+//   - name: workspace
+//     emptyDir: {}
+// """
+//         }
+//     }
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
