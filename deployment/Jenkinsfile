@@ -1,6 +1,7 @@
 pipeline {
     agent  {
         kubernetes {
+            echo "Running on Kubernetes"
             yaml """
 apiVersion: v1
 kind: Pod
