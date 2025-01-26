@@ -1,34 +1,35 @@
 pipeline {
-    agent  {
-        kubernetes {
-            yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: docker
-    image: docker:latest
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: workspace
-      mountPath: /workspace  # Asegúrate de que mountPath esté correctamente configurado
-  - name: builder
-    image: gradle:latest
-    resources:
-      requests:
-        memory: "1Gi"
-        cpu: "500m"
-      limits:
-        memory: "2Gi"
-        cpu: "1000m"
-  volumes:
-  - name: workspace
-    emptyDir: {}
-"""
-        }
-    }
+    agent  any
+//     {
+//         kubernetes {
+//             yaml """
+// apiVersion: v1
+// kind: Pod
+// spec:
+//   containers:
+//   - name: docker
+//     image: docker:latest
+//     command:
+//     - cat
+//     tty: true
+//     volumeMounts:
+//     - name: workspace
+//       mountPath: /workspace  # Asegúrate de que mountPath esté correctamente configurado
+//   - name: builder
+//     image: gradle:latest
+//     resources:
+//       requests:
+//         memory: "1Gi"
+//         cpu: "500m"
+//       limits:
+//         memory: "2Gi"
+//         cpu: "1000m"
+//   volumes:
+//   - name: workspace
+//     emptyDir: {}
+// """
+//         }
+//     }
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
@@ -48,29 +49,37 @@ spec:
             }
         }
 
-        stage('Build Application with Gradle') {
+        stage("Compile") {
             steps {
-                container('docker') {
-                    script {
-                        // Listar archivos para verificar que gradlew esté presente
-                        sh 'ls -l /workspace'  // Verificamos que estamos en el directorio correcto
-                        // Construir el proyecto con Gradle y generar el .jar
-                        dir('/workspace') {
-                            sh './gradlew build -x test'  // Ejecutamos el build de Gradle en el directorio correcto
-                        }
-                    }
-                }
+                sh "./gradlew compileJava"
             }
         }
+
+//         stage('Build Application with Gradle') {
+//             steps {
+//                 container('docker') {
+//                     script {
+//                         // Listar archivos para verificar que gradlew esté presente
+//                         sh 'ls -l /workspace'  // Verificamos que estamos en el directorio correcto
+//                         // Construir el proyecto con Gradle y generar el .jar
+//                         dir('/workspace') {
+//                             sh './gradlew build -x test'  // Ejecutamos el build de Gradle en el directorio correcto
+//                         }
+//                     }
+//                 }
+//             }
+//         }
 
         stage('Build Docker Image') {
             steps {
                 container('docker') {
                     script {
-                        // Construir la imagen Docker usando el archivo .jar generado
-                        sh """
-                        docker build -f deployment/Dockerfile -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
-                        """
+                        dir('/deployment/Dockerfile'){
+                            // Construir la imagen Docker usando el archivo .jar generado
+                            sh """
+                            docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
+                            """
+                        }
                     }
                 }
             }
