@@ -52,8 +52,10 @@ spec:
 
         stage("Compile") {
             steps {
-            echo "Compiling the Java code..."
-                sh "./gradlew compileJava"
+                container('builder') {
+                    echo "Compiling the Java code..."
+                    sh "./gradlew compileJava"
+                }
             }
         }
 
