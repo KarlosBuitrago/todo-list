@@ -55,7 +55,9 @@ spec:
                         // Listar archivos para verificar que gradlew esté presente
                         sh 'ls -l /workspace'  // Verificamos que estamos en el directorio correcto
                         // Construir el proyecto con Gradle y generar el .jar
-                        sh './gradlew build -x test'  // Esto ejecutará gradle en el directorio correcto
+                        dir('/workspace') {
+                            sh './gradlew build -x test'  // Ejecutamos el build de Gradle en el directorio correcto
+                        }
                     }
                 }
             }
