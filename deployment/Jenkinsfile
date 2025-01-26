@@ -1,7 +1,6 @@
 pipeline {
     agent  {
         kubernetes {
-            echo "Running on Kubernetes"
             yaml """
 apiVersion: v1
 kind: Pod
@@ -14,10 +13,17 @@ spec:
     tty: true
     volumeMounts:
     - name: workspace
-      mountPath: /workspace  # Asegúrate de que mountPath esté correctamente configurado
+      mountPath: /workspace
     workingDir: /workspace
   - name: builder
     image: gradle:latest
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: workspace
+      mountPath: /workspace
+    workingDir: /workspace
     resources:
       requests:
         memory: "1Gi"
