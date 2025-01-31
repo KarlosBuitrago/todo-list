@@ -1,7 +1,7 @@
 pipeline {
-    agent    {
+    agent   {
         kubernetes {
-            yaml """
+            yaml '''
 apiVersion: v1
 kind: Pod
 metadata:
@@ -18,7 +18,7 @@ spec:
   volumes:
   - name: workspace
     emptyDir: {}
-"""
+'''
         }
     }
 
