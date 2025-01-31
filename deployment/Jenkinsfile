@@ -39,14 +39,14 @@ spec:
     }
 
     stages {
-        stage('Checkout Source Code') {
-            steps {
-                script {
-                    echo "Checking out source code..."
-                    checkout scm
-                }
-            }
-        }
+//         stage('Checkout Source Code') {
+//             steps {
+//                 script {
+//                     echo "Checking out source code..."
+//                     checkout scm
+//                 }
+//             }
+//         }
 
         stage("Compile") {
             steps {
