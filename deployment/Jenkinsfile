@@ -1,34 +1,26 @@
 pipeline {
-    agent  any
-//      {
-//         kubernetes {
-//             yaml """
-// apiVersion: v1
-// kind: Pod
-// spec:
-//   containers:
-//   - name: docker
-//     image: docker:latest
-//     command:
-//     - cat
-//     tty: true
-//     volumeMounts:
-//     - name: workspace
-//       mountPath: /workspace
-//     workingDir: /workspace
-//     resources:
-//       requests:
-//         memory: "1Gi"
-//         cpu: "500m"
-//       limits:
-//         memory: "2Gi"
-//         cpu: "1000m"
-//   volumes:
-//   - name: workspace
-//     emptyDir: {}
-// """
-//         }
-//     }
+    agent    {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent
+spec:
+  containers:
+  - name: builder
+    image: gradle:latest
+    command: ["/bin/sh", "-c", "apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null && apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io && /bin/bash"]
+    volumeMounts:
+    - name: workspace
+      mountPath: /workspace
+    workingDir: /workspace
+  volumes:
+  - name: workspace
+    emptyDir: {}
+"""
+        }
+    }
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
