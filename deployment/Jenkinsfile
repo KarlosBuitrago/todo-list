@@ -1,48 +1,48 @@
 pipeline {
-    agent  any
-//     {
-//         kubernetes {
-//             yaml '''
-// apiVersion: v1
-// kind: Pod
-// metadata:
-//   name: jenkins-agent
-// spec:
-//   containers:
-//   - name: builder
-//     image: gradle:jdk17
-//     command: ["/bin/sh", "-c", "apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null && apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io && /bin/bash"]
-//     volumeMounts:
-//     - name: workspace
-//       mountPath: /workspace
-//     workingDir: /workspace
-//   volumes:
-//   - name: workspace
-//     emptyDir: {}
-// '''
-//         }
-//     }
+    agent {
+        kubernetes {
+            yaml '''
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent
+spec:
+  containers:
+  - name: builder
+    image: gradle:jdk17
+    command: ["/bin/sh", "-c", "apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && echo 'deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable' | tee /etc/apt/sources.list.d/docker.list > /dev/null && apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io && /bin/bash"]
+    volumeMounts:
+    - name: workspace
+      mountPath: /workspace
+    workingDir: /workspace
+  volumes:
+  - name: workspace
+    emptyDir: {}
+'''
+        }
+    }
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
         DOCKER_REGISTRY = "192.168.0.100:32500"
-        REGISTRY_USERNAME = "cjbuitrago"
-        REGISTRY_PASSWORD = "Buitra90"
+        DOCKER_PASSWORD = "Buitra90"
+        DOCKER_USERNAME = "cjbuitrago"
         IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
+        KUBERNETES_SERVER = "https://192.168.0.100:6443" // Asegurando que sea el mismo en todas partes
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
-        DOCKER_CREDENTIALS_ID = 'docker-credentials-id' // Cambia por el ID de credenciales en Jenkins
+        DOCKER_CREDENTIALS_ID = 'docker-credentials-id'
     }
 
     stages {
-//         stage('Checkout Source Code') {
-//             steps {
-//                 script {
-//                     echo "Checking out source code..."
-//                     checkout scm
-//                 }
-//             }
-//         }
+        stage("Checkout Source Code") {
+            steps {
+                script {
+                    echo "Checking out source code..."
+                    checkout scm
+                }
+            }
+        }
 
         stage("Compile") {
             steps {
@@ -53,32 +53,25 @@ pipeline {
             }
         }
 
-//         stage('Build Application with Gradle') {
-//             steps {
-//                 container('docker') {
-//                     script {
-//                         // Listar archivos para verificar que gradlew esté presente
-//                         sh 'ls -l /workspace'  // Verificamos que estamos en el directorio correcto
-//                         // Construir el proyecto con Gradle y generar el .jar
-//                         dir('/workspace') {
-//                             sh './gradlew build -x test'  // Ejecutamos el build de Gradle en el directorio correcto
-//                         }
-//                     }
-//                 }
-//             }
-//         }
+        stage('Build Application with Gradle') {
+            steps {
+                container('builder') {
+                    script {
+                        echo "Building application..."
+                        sh './gradlew build -x test'
+                    }
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
-                container('docker') {
+                container('builder') {
                     script {
-                        dir('/deployment/Dockerfile'){
                         echo "Building Docker Image..."
-                            // Construir la imagen Docker usando el archivo .jar generado
-                            sh """
-                            docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} .
-                            """
-                        }
+                        sh """
+                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
+                        """
                     }
                 }
             }
@@ -86,39 +79,26 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                container('docker') {
+                container('builder') {
                     script {
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                                                sh """
-                                                echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
-                                                docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                                                """
-                                            }
+                        withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                            sh """
+                            echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
+                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                            """
+                        }
                     }
                 }
             }
         }
 
-        stage('Deploy todolistcarlos App') {
-                 steps {
-                    withCredentials(bindings: [
-                              string(credentialsId: 'KUBECONFIG_CREDENTIALS_ID', variable: 'api_token')
-                              ]) {
-                              echo "Deploying todolistcarlos App..."
-                    sh 'kubectl --token $api_token --server https://192.168.0.100:31919 --insecure-skip-tls-verify=true get ns '
-                  }
-
-                }
-              }
-
-        stage('Deploy todolistcarlos to Kubernetes') {
+        stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'api-token')]) {
+                withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
                     script {
-                        echo "Deploying todolistcarlos to Kubernetes..."
-                        // Desplegar la imagen en Kubernetes
+                        echo "Deploying to Kubernetes..."
                         sh """
-                        kubectl --token=$api-token --server=https://192.168.0.100:6443 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
+                        kubectl --token=$KUBE_TOKEN --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
                         """
                     }
                 }
