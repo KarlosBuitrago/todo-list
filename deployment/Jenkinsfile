@@ -27,7 +27,7 @@ spec:
         DOCKER_REGISTRY = "192.168.0.100:32500"
         IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
-        KUBECONFIG_CREDENTIALS_ID = '5c901259-27f9-49c5-abcf-6351cfe129c1'
+        KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'docker-credentials-id' // Cambia por el ID de credenciales en Jenkins
     }
 
@@ -112,7 +112,7 @@ spec:
                         echo "Deploying todolistcarlos to Kubernetes..."
                         // Desplegar la imagen en Kubernetes
                         sh """
-                        kubectl --token=$api-token --server=https://192.168.0.100:31919 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
+                        kubectl --token=$api-token --server=https://192.168.0.100:6443 --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
                         """
                     }
                 }
