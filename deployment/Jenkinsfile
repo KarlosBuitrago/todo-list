@@ -25,6 +25,8 @@ spec:
     environment {
         PROJECT_NAME = "TodoListCarlos"
         DOCKER_REGISTRY = "192.168.0.100:32500"
+        REGISTRY_USERNAME = "cjbuitrago"
+        REGISTRY_PASSWORD = "Buitra90"
         IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
@@ -85,9 +87,12 @@ spec:
             steps {
                 container('docker') {
                     script {
-                    echo "Pushing Docker Image..."
-                        // Subir la imagen al registry
-                        sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                                                sh """
+                                                echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
+                                                docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                                                """
+                                            }
                     }
                 }
             }
