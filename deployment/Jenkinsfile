@@ -9,17 +9,22 @@ metadata:
 spec:
   containers:
   - name: builder
-    image: docker:17
-    command: ["cat"]
+    image: gradle:7.6.2-jdk17
+    command: ["sleep", "99d"]
     tty: true
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+  - name: docker
+    image: docker:20.10.24-dind
     securityContext:
       privileged: true
+    tty: true
     volumeMounts:
-    - name: workspace
-      mountPath: /workspace
-    workingDir: /workspace
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
   volumes:
-  - name: workspace
+  - name: docker-sock
     emptyDir: {}
 '''
         }
