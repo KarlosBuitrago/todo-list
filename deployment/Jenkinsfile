@@ -9,8 +9,8 @@ metadata:
 spec:
   containers:
   - name: builder
-    image: docker:24-dind
-    command: ["cat"]
+    image: docker:17-dind
+    command: ["dockerd-entrypoint.sh"]
     tty: true
     securityContext:
       privileged: true
