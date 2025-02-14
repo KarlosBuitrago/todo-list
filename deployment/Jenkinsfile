@@ -12,9 +12,6 @@ spec:
     image: gradle:7.6.2-jdk17
     command: ["sleep", "99d"]
     tty: true
-    volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
   - name: docker
     image: docker:20.10
     command: ["sleep", "99d"]
@@ -50,6 +47,7 @@ spec:
                 }
             }
         }
+
         stage('Setup') {
             steps {
                 sh 'chmod +x gradlew'
@@ -59,15 +57,18 @@ spec:
         stage("Compile") {
             steps {
                 container('builder') {
-                    echo "Compiling the Java code..."
-                    sh "./gradlew compileJava"
+                    script {
+                        echo "Compiling the Java code..."
+                        sh 'chmod +x gradlew'
+                        sh "./gradlew compileJava"
+                    }
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                container('builder') {
+                container('docker') {
                     script {
                         echo "Building Docker Image..."
                         sh """
@@ -80,7 +81,7 @@ spec:
 
         stage('Push Docker Image') {
             steps {
-                container('builder') {
+                container('docker') {
                     script {
                         withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                             sh """
