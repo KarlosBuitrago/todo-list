@@ -69,27 +69,15 @@ spec:
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
                 container('docker') {
                     script {
-                        echo "Building Docker Image..."
-                        sh """
-                        docker build -t ${IMAGE_NAME}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
-                        """
-                    }
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                container('docker') {
-                    script {
-                        withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        withDockerRegistry([credentialsId: DOCKER_CREDENTIALS_ID, url: "http://${DOCKER_REGISTRY}"]) {
+                            echo "Building Docker Image..."
                             sh """
-                            echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
-                            docker push ${IMAGE_NAME}/${IMAGE_NAME}:${IMAGE_TAG}
+                            docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
+                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
                             """
                         }
                     }
@@ -103,11 +91,9 @@ spec:
                     withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
                         script {
                             echo "Deploying to Kubernetes..."
-                            withEnv(["TOKEN=$KUBE_TOKEN"]) {
-                                sh """
-                                kubectl --token=$TOKEN --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
-                                """
-                            }
+                            sh """
+                            kubectl --token=$KUBE_TOKEN --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
+                            """
                         }
                     }
                 }
