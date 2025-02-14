@@ -35,7 +35,7 @@ spec:
         IMAGE_TAG = "latest"
         KUBERNETES_SERVER = "https://192.168.0.100:6443"
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
-        DOCKER_CREDENTIALS_ID = 'docker-credentials-id'
+        DOCKER_CREDENTIALS_ID = 'secret-private-registry'
     }
 
     stages {
