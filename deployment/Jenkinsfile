@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
   - name: builder
-    image: docker:17-dind
+    image: docker:17
     command: ["cat"]
     tty: true
     securityContext:
