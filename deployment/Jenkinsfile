@@ -10,7 +10,7 @@ spec:
   containers:
   - name: builder
     image: docker:17-dind
-    command: ["dockerd-entrypoint.sh"]
+    command: ["cat"]
     tty: true
     securityContext:
       privileged: true
