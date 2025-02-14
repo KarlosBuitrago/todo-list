@@ -1,6 +1,5 @@
 pipeline {
-    agent
-    {
+    agent {
         kubernetes {
             yaml '''
 apiVersion: v1
@@ -26,11 +25,9 @@ spec:
     environment {
         PROJECT_NAME = "TodoListCarlos"
         DOCKER_REGISTRY = "192.168.0.100:32500"
-        DOCKER_PASSWORD = "Buitra90"
-        DOCKER_USERNAME = "cjbuitrago"
         IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
-        KUBERNETES_SERVER = "https://192.168.0.100:6443" // Asegurando que sea el mismo en todas partes
+        KUBERNETES_SERVER = "https://192.168.0.100:6443"
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'docker-credentials-id'
     }
@@ -53,17 +50,6 @@ spec:
                 }
             }
         }
-
-//         stage('Build Application with Gradle') {
-//             steps {
-//                 container('builder') {
-//                     script {
-//                         echo "Building application..."
-//                         sh './gradlew build -x test'
-//                     }
-//                 }
-//             }
-//         }
 
         stage('Build Docker Image') {
             steps {
