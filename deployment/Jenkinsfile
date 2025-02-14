@@ -10,15 +10,19 @@ spec:
   containers:
   - name: builder
     image: gradle:7.6.2-jdk17
-    command: ["sleep", "99d"]
+    command: ["cat"]
     tty: true
   - name: docker
     image: docker:20.10
-    command: ["sleep", "99d"]
+    command: ["cat"]
     tty: true
     volumeMounts:
     - name: docker-sock
       mountPath: /var/run/docker.sock
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command: ["cat"]
+    tty: true
   volumes:
   - name: docker-sock
     hostPath:
@@ -59,7 +63,6 @@ spec:
                 container('builder') {
                     script {
                         echo "Compiling the Java code..."
-                        sh 'chmod +x gradlew'
                         sh "./gradlew compileJava"
                     }
                 }
@@ -72,7 +75,7 @@ spec:
                     script {
                         echo "Building Docker Image..."
                         sh """
-                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
+                        docker build -t ${IMAGE_NAME}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
                         """
                     }
                 }
@@ -86,7 +89,7 @@ spec:
                         withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                             sh """
                             echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
-                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                            docker push ${IMAGE_NAME}/${IMAGE_NAME}:${IMAGE_TAG}
                             """
                         }
                     }
