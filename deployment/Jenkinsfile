@@ -96,12 +96,16 @@ spec:
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
-                    script {
-                        echo "Deploying to Kubernetes..."
-                        sh """
-                        kubectl --token=$KUBE_TOKEN --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
-                        """
+                container('kubectl') {
+                    withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
+                        script {
+                            echo "Deploying to Kubernetes..."
+                            withEnv(["TOKEN=$KUBE_TOKEN"]) {
+                                sh """
+                                kubectl --token=$TOKEN --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
+                                """
+                            }
+                        }
                     }
                 }
             }
