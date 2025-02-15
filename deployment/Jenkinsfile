@@ -104,7 +104,7 @@ spec:
                     withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
                         script {
                             echo "Deploying to Kubernetes..."
-                            sh """
+                            sh '''
                                 export KUBECONFIG=/home/jenkins/.kube/config
                                 kubectl config set-cluster k8s-cluster --server=${KUBERNETES_SERVER} --insecure-skip-tls-verify=true
                                 echo "$KUBE_TOKEN" | kubectl config set-credentials jenkins-user --token-stdin
@@ -113,7 +113,7 @@ spec:
 
                                 # Aplicar los manifiestos de despliegue
                                 kubectl apply -f deployment/deployment.yaml
-                            """
+                            '''
                         }
                     }
                 }
