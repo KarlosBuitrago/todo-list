@@ -10,22 +10,24 @@ spec:
   containers:
   - name: builder
     image: gradle:7.6.2-jdk17
-    command: ["sleep", "99d"]
+    command: ["cat"]
     tty: true
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
-    args: ["--dockerfile=deployment/Dockerfile", "--context=dir://workspace/", "--destination=192.168.0.100:32500/todolistcarlos:latest"]
+  - name: docker
+    image: docker:20.10
+    command: ["cat"]
+    tty: true
     volumeMounts:
-    - name: regcred
-      mountPath: /kaniko/.docker/
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
   - name: kubectl
     image: bitnami/kubectl:latest
-    command: ["sleep", "99d"]
+    command: ["cat"]
     tty: true
   volumes:
-  - name: kaniko-secret
-    secret:
-      secretName: docker-secret
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+      type: Socket
 '''
         }
     }
@@ -70,47 +72,48 @@ spec:
 
         stage('Build Docker Image') {
             steps {
-                container('kaniko') {
+                container('docker') {
                     script {
-                        echo "Building & pushing Docker image with Kaniko..."
+                        echo "Building Docker Image..."
                         sh """
-                        /kaniko/executor \
-                            --dockerfile=deployment/Dockerfile \
-                            --context=dir:///workspace/ \
-                            --destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
                         """
                     }
                 }
             }
         }
 
-//         stage('Push Docker Image') {
-//             steps {
-//                 container('docker') {
-//                     script {
-//                         withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-//                             sh """
-//                             echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
-//                             docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-//                             """
-//                         }
-//                     }
-//                 }
-//             }
-//         }
+        stage('Push Docker Image') {
+            steps {
+                container('docker') {
+                    script {
+                        withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                            sh """
+                            echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
+                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+                            """
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
-                    withCredentials([String(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: '$KUBE_TOKEN')]) {
+                    withCredentials([string(credentialsId: KUBE_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
                         script {
-                            sh '''
-                                echo "$KUBE_TOKEN" > /home/jenkins/.kube/config
+                            echo "Deploying to Kubernetes..."
+                            sh """
                                 export KUBECONFIG=/home/jenkins/.kube/config
-                                kubectl config use-context default
-                                kubectl config set-cluster k8s-cluster --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true
+                                kubectl config set-cluster k8s-cluster --server=${KUBERNETES_SERVER} --insecure-skip-tls-verify=true
+                                echo "$KUBE_TOKEN" | kubectl config set-credentials jenkins-user --token-stdin
+                                kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins-user --namespace=${KUBE_NAMESPACE}
+                                kubectl config use-context jenkins-context
+
+                                # Aplicar los manifiestos de despliegue
                                 kubectl apply -f deployment/deployment.yaml
-                            '''
+                            """
                         }
                     }
                 }
