@@ -37,6 +37,7 @@ spec:
         DOCKER_REGISTRY = "192.168.0.100:32500"
         IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
+        KUBE_NAMESPACE = "default"
         KUBERNETES_SERVER = "https://192.168.0.100:6443"
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
@@ -104,9 +105,12 @@ spec:
                         script {
                             echo "Deploying to Kubernetes..."
                             sh """
-                            echo "$KUBE_CONFIG" > kubeconfig.yaml
-                            export KUBECONFIG=kubeconfig.yaml
-                            kubectl apply -f deployment/deployment.yaml
+                                kubectl config set-cluster k8s-cluster --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true
+                                kubectl config set-credentials jenkins-user --token=$KUBE_TOKEN
+                                kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins-user --namespace=$KUBE_NAMESPACE
+                                kubectl config use-context jenkins-context
+                                # Aplicar los manifiestos de despliegue
+                                kubectl apply -f deployment.yaml
                             """
                         }
                     }
