@@ -101,7 +101,7 @@ spec:
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
-                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: '$KUBE_TOKEN')]) {
+                    withCredentials([String(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: '$KUBE_TOKEN')]) {
                         script {
                             sh '''
                                 echo "$KUBE_TOKEN" > /home/jenkins/.kube/config
