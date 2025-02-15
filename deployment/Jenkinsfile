@@ -105,6 +105,8 @@ spec:
                         script {
                             echo "Deploying to Kubernetes..."
                             sh '''
+                                echo "Kubernetes deployment started"
+                                kubectl version
                                 export KUBECONFIG=/home/jenkins/.kube/config
                                 kubectl config set-cluster k8s-cluster --server=${KUBERNETES_SERVER} --insecure-skip-tls-verify=true
                                 echo "$KUBE_TOKEN" | kubectl config set-credentials jenkins-user --token-stdin
