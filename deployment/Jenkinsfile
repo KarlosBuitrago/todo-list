@@ -101,7 +101,7 @@ spec:
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
-                    withCredentials([string(credentialsId: KUBE_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
+                    withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
                         script {
                             echo "Deploying to Kubernetes..."
                             sh """
