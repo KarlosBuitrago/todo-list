@@ -101,20 +101,14 @@ spec:
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
-                    withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
+                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG')]) {
                         script {
                             echo "Deploying to Kubernetes..."
                             sh '''
-                                export KUBECONFIG=/home/jenkins/.kube/config
-                                echo "$KUBE_TOKEN" | kubectl config set-credentials jenkins-user --token-stdin
-                                kubectl config set-cluster k8s-cluster --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true
-                                kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins-user --namespace=$KUBE_NAMESPACE
-                                kubectl config use-context jenkins-context
-                                kubectl apply -f deployment.yaml
+                                kubectl apply -f deployment.yaml --kubeconfig=$KUBECONFIG
                             '''
                         }
                     }
-
                 }
             }
         }
