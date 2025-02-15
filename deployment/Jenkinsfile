@@ -10,24 +10,22 @@ spec:
   containers:
   - name: builder
     image: gradle:7.6.2-jdk17
-    command: ["cat"]
+    command: ["sleep", "99d"]
     tty: true
-  - name: docker
-    image: docker:20.10
-    command: ["cat"]
-    tty: true
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args: ["--dockerfile=deployment/Dockerfile", "--context=dir://workspace/", "--destination=192.168.0.100:32500/todolistcarlos:latest"]
     volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
+    - name: kaniko-secret
+      mountPath: /kaniko/.docker/
   - name: kubectl
     image: bitnami/kubectl:latest
-    command: ["cat"]
+    command: ["sleep", "99d"]
     tty: true
   volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
-      type: Socket
+  - name: kaniko-secret
+    secret:
+      secretName: docker-secret
 '''
         }
     }
@@ -107,7 +105,7 @@ spec:
                                 echo "$KUBE_TOKEN" > /home/jenkins/.kube/config
                                 export KUBECONFIG=/home/jenkins/.kube/config
                                 kubectl config set-cluster k8s-cluster --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true
-                                kubectl apply -f deployment.yaml
+                                kubectl apply -f deployment/deployment.yaml
                             '''
                         }
                     }
