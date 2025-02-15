@@ -16,7 +16,7 @@ spec:
     image: gcr.io/kaniko-project/executor:latest
     args: ["--dockerfile=deployment/Dockerfile", "--context=dir://workspace/", "--destination=192.168.0.100:32500/todolistcarlos:latest"]
     volumeMounts:
-    - name: kaniko-secret
+    - name: regcred
       mountPath: /kaniko/.docker/
   - name: kubectl
     image: bitnami/kubectl:latest
@@ -70,31 +70,34 @@ spec:
 
         stage('Build Docker Image') {
             steps {
-                container('docker') {
+                container('kaniko') {
                     script {
-                        echo "Building Docker Image..."
+                        echo "Building & pushing Docker image with Kaniko..."
                         sh """
-                        docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
+                        /kaniko/executor \
+                            --dockerfile=deployment/Dockerfile \
+                            --context=dir:///workspace/ \
+                            --destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
                         """
                     }
                 }
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                container('docker') {
-                    script {
-                        withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                            sh """
-                            echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
-                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-                            """
-                        }
-                    }
-                }
-            }
-        }
+//         stage('Push Docker Image') {
+//             steps {
+//                 container('docker') {
+//                     script {
+//                         withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+//                             sh """
+//                             echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
+//                             docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
+//                             """
+//                         }
+//                     }
+//                 }
+//             }
+//         }
 
         stage('Deploy to Kubernetes') {
             steps {
@@ -104,6 +107,7 @@ spec:
                             sh '''
                                 echo "$KUBE_TOKEN" > /home/jenkins/.kube/config
                                 export KUBECONFIG=/home/jenkins/.kube/config
+                                kubectl config use-context default
                                 kubectl config set-cluster k8s-cluster --server=$KUBERNETES_SERVER --insecure-skip-tls-verify=true
                                 kubectl apply -f deployment/deployment.yaml
                             '''
