@@ -69,8 +69,10 @@ spec:
         }
         stage('Verify kubectl') {
             steps {
-                script {
-                    sh "kubectl version --client"
+                container('kubectl') {
+                    script {
+                        sh "kubectl version --client"
+                    }
                 }
             }
         }
@@ -102,21 +104,20 @@ spec:
         }
         stage('Deploy billing App') {
             steps {
-                withCredentials(bindings: [
-                          string(credentialsId: '${KUBECONFIG_CREDENTIALS_ID}', variable: 'api_token')
-                          ]) {
-                sh 'kubectl --token $api_token --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns '
+                container('kubectl') {
+                    withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
+                        sh "kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns"
+                    }
                 }
             }
         }
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials(bindings: [
-                          string(credentialsId: '${KUBECONFIG_CREDENTIALS_ID}', variable: 'api_token')
-                          ]) {
-                sh "kubectl --token $api_token --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml"
-              }
-
+                container('kubectl') {
+                    withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
+                        sh "kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml"
+                    }
+                }
             }
         }
     }
