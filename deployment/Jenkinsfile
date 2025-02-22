@@ -21,7 +21,7 @@ spec:
       mountPath: /var/run/docker.sock
   - name: kubectl
     image: rancher/kubectl:v1.28.2
-    command: ["sleep", "99d"]
+    command: ["cat"]
     tty: true
   volumes:
   - name: docker-sock
