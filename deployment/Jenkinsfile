@@ -52,13 +52,11 @@ spec:
                 }
             }
         }
-
         stage('Setup') {
             steps {
                 sh 'chmod +x gradlew'
             }
         }
-
         stage("Compile") {
             steps {
                 container('builder') {
@@ -69,7 +67,13 @@ spec:
                 }
             }
         }
-
+        stage('Verify kubectl') {
+            steps {
+                script {
+                    sh "kubectl version --client"
+                }
+            }
+        }
         stage('Build Docker Image') {
             steps {
                 container('docker') {
@@ -82,7 +86,6 @@ spec:
                 }
             }
         }
-
         stage('Push Docker Image') {
             steps {
                 container('docker') {
@@ -97,32 +100,26 @@ spec:
                 }
             }
         }
-
-        stage('Deploy to Kubernetes') {
+        stage('Deploy billing App') {
             steps {
-                container('kubectl') {
-                    withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
-                        script {
-                            echo "Deploying to Kubernetes..."
-                            sh '''
-                                echo "Kubernetes deployment started"
-                                kubectl version
-//                                 export KUBECONFIG=/home/jenkins/.kube/config
-//                                 kubectl config set-cluster k8s-cluster --server=${KUBERNETES_SERVER} --insecure-skip-tls-verify=true
-//                                 echo "$KUBE_TOKEN" | kubectl config set-credentials jenkins-user --token-stdin
-//                                 kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins-user --namespace=${KUBE_NAMESPACE}
-//                                 kubectl config use-context jenkins-context
-//
-//                                 # Aplicar los manifiestos de despliegue
-                                kubectl apply -f deployment/deployment.yaml
-                            '''
-                        }
-                    }
+                withCredentials(bindings: [
+                          string(credentialsId: '${KUBECONFIG_CREDENTIALS_ID}', variable: 'api_token')
+                          ]) {
+                sh 'kubectl --token $api_token --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns '
                 }
             }
         }
-    }
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials(bindings: [
+                          string(credentialsId: '${KUBECONFIG_CREDENTIALS_ID}', variable: 'api_token')
+                          ]) {
+                sh "kubectl --token $api_token --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml"
+              }
 
+            }
+        }
+    }
     post {
         success {
             echo "Pipeline completed successfully!"
