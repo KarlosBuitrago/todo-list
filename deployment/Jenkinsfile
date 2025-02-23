@@ -21,9 +21,17 @@ spec:
     - name: docker-sock
       mountPath: /var/run/docker.sock
   - name: kubectl
-    image: bitnami/kubectl:latest
-    command: ["cat"]
-    tty: true
+      image: bitnami/kubectl:latest
+      command: ["/bin/bash", "-c", "sleep 3600"]
+      tty: true
+      volumeMounts:
+        - name: kubectl-bin
+          mountPath: /usr/local/bin/kubectl
+    volumes:
+      - name: kubectl-bin
+        hostPath:
+          path: /usr/local/bin/kubectl
+          type: File
   volumes:
   - name: docker-sock
     hostPath:
