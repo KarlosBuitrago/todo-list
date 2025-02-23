@@ -74,10 +74,13 @@ spec:
                 container('kubectl') {
                     script {
                         sh '''
-                        # Descargar e instalar kubectl en tiempo de ejecución
-                        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$ARCH/kubectl"
+                        set -e
+                        ARCH=arm64
+                        KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+                        curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
                         chmod +x kubectl
-                        mv kubectl /usr/local/bin/kubectl
+                        mv kubectl /usr/local/bin/
+                        kubectl version --client
                         '''
                     }
                 }
