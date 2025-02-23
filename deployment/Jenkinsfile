@@ -69,15 +69,29 @@ spec:
                 }
             }
         }
-//         stage('Verify kubectl') {
-//             steps {
-//                 container('kubectl') {
-//                     script {
-//                         sh "kubectl version --client"
-//                     }
-//                 }
-//             }
-//         }
+        stage('Install kubectl') {
+            steps {
+                container('kubectl') {
+                    script {
+                        sh '''
+                        # Descargar e instalar kubectl en tiempo de ejecución
+                        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                        chmod +x kubectl
+                        mv kubectl /usr/local/bin/kubectl
+                        '''
+                    }
+                }
+            }
+        }
+        stage('Verify kubectl') {
+            steps {
+                container('kubectl') {
+                    script {
+                        sh "kubectl version --client"
+                    }
+                }
+            }
+        }
         stage('Build Docker Image') {
             steps {
                 container('docker') {
