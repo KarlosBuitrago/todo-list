@@ -1,45 +1,45 @@
 pipeline {
-    agent
-    {
-        kubernetes {
-            yaml '''
-apiVersion: v1
-kind: Pod
-metadata:
-  name: jenkins-agent
-spec:
-  containers:
-  - name: builder
-    image: gradle:7.6.2-jdk17
-    command: ["cat"]
-    tty: true
-  - name: docker
-    image: docker:20.10
-    command: ["cat"]
-    tty: true
-    volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
-  - name: kubectl
-      image: bitnami/kubectl:latest
-      command: ["/bin/bash", "-c", "sleep 3600"]
-      tty: true
-      volumeMounts:
-        - name: kubectl-bin
-          mountPath: /usr/local/bin/kubectl
-    volumes:
-      - name: kubectl-bin
-        hostPath:
-          path: /usr/local/bin/kubectl
-          type: File
-  volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
-      type: Socket
-'''
-        }
-    }
+    agent any
+//     {
+//         kubernetes {
+//             yaml '''
+// apiVersion: v1
+// kind: Pod
+// metadata:
+//   name: jenkins-agent
+// spec:
+//   containers:
+//   - name: builder
+//     image: gradle:7.6.2-jdk17
+//     command: ["cat"]
+//     tty: true
+//   - name: docker
+//     image: docker:20.10
+//     command: ["cat"]
+//     tty: true
+//     volumeMounts:
+//     - name: docker-sock
+//       mountPath: /var/run/docker.sock
+//   - name: kubectl
+//       image: bitnami/kubectl:latest
+//       command: ["/bin/bash", "-c", "sleep 3600"]
+//       tty: true
+//       volumeMounts:
+//         - name: kubectl-bin
+//           mountPath: /usr/local/bin/kubectl
+//     volumes:
+//       - name: kubectl-bin
+//         hostPath:
+//           path: /usr/local/bin/kubectl
+//           type: File
+//   volumes:
+//   - name: docker-sock
+//     hostPath:
+//       path: /var/run/docker.sock
+//       type: Socket
+// '''
+//         }
+//     }
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
@@ -50,7 +50,7 @@ spec:
         KUBERNETES_SERVER = "https://192.168.0.100:6443"
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
-        PATH = "/usr/local/bin:/usr/bin:$PATH"
+        PATH = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin:$PATH'
     }
 
     stages {
