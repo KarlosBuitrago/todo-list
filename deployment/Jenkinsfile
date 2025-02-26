@@ -43,11 +43,11 @@ spec:
 
     environment {
         PROJECT_NAME = "TodoListCarlos"
-        DOCKER_REGISTRY = "192.168.0.100:32500"
+        DOCKER_REGISTRY = "192.168.0.14:32500"
         IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
         KUBE_NAMESPACE = "default"
-        KUBERNETES_SERVER = "https://192.168.0.100:6443"
+        KUBERNETES_SERVER = "https://192.168.0.14:6443"
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
         PATH = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin:$PATH'
