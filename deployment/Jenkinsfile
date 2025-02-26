@@ -13,30 +13,30 @@ spec:
     image: gradle:7.6.2-jdk17
     command: ["cat"]
     tty: true
-  - name: docker
-    image: docker:20.10
-    command: ["cat"]
-    tty: true
-    volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
-  - name: kubectl
-      image: bitnami/kubectl:latest
-      command: ["/bin/bash", "-c", "sleep 3600"]
-      tty: true
-      volumeMounts:
-        - name: kubectl-bin
-          mountPath: /usr/local/bin/kubectl
-    volumes:
-      - name: kubectl-bin
-        hostPath:
-          path: /usr/local/bin/kubectl
-          type: File
-  volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
-      type: Socket
+//   - name: docker
+//     image: docker:20.10
+//     command: ["cat"]
+//     tty: true
+//     volumeMounts:
+//     - name: docker-sock
+//       mountPath: /var/run/docker.sock
+//   - name: kubectl
+//       image: bitnami/kubectl:latest
+//       command: ["/bin/bash", "-c", "sleep 3600"]
+//       tty: true
+//       volumeMounts:
+//         - name: kubectl-bin
+//           mountPath: /usr/local/bin/kubectl
+//     volumes:
+//       - name: kubectl-bin
+//         hostPath:
+//           path: /usr/local/bin/kubectl
+//           type: File
+//   volumes:
+//   - name: docker-sock
+//     hostPath:
+//       path: /var/run/docker.sock
+//       type: Socket
 '''
         }
     }
