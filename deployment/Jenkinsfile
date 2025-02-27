@@ -51,7 +51,7 @@ spec:
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
         //PATH = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin:$PATH'
-        PATH+EXTRA = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin'
+//         PATH+EXTRA = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin'
     }
 
     stages {
