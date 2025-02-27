@@ -77,23 +77,23 @@ spec:
                 }
             }
         }
-        stage('Install kubectl') {
-            steps {
-                container('kubectl') {
-                    script {
-                        sh '''
-                        set -e
-                        ARCH=amd64
-                        KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
-                        curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
-                        chmod +x kubectl
-                        mv kubectl /usr/local/bin/
-                        kubectl version --client
-                        '''
-                    }
-                }
-            }
-        }
+//         stage('Install kubectl') {
+//             steps {
+//                 container('kubectl') {
+//                     script {
+//                         sh '''
+//                         set -e
+//                         ARCH=amd64
+//                         KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+//                         curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
+//                         chmod +x kubectl
+//                         mv kubectl /usr/local/bin/
+//                         kubectl version --client
+//                         '''
+//                     }
+//                 }
+//             }
+//         }
         stage('Verify kubectl') {
             steps {
                 container('kubectl') {
