@@ -95,15 +95,15 @@ spec:
 //                 }
 //             }
 //         }
-        stage('Verify kubectl') {
-            steps {
-                container('kubectl') {
-                    script {
-                        sh "kubectl version --client"
-                    }
-                }
-            }
-        }
+//         stage('Verify kubectl') {
+//             steps {
+//                 container('kubectl') {
+//                     script {
+//                         sh "kubectl version --client"
+//                     }
+//                 }
+//             }
+//         }
         stage('Build Docker Image') {
             steps {
                 container('docker') {
