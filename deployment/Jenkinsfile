@@ -1,6 +1,5 @@
 pipeline {
-    agent
-    {
+    agent {
         kubernetes {
             yaml '''
 apiVersion: v1
@@ -22,7 +21,7 @@ spec:
           mountPath: /var/run/docker.sock
     - name: kubectl
       image: bitnami/kubectl:latest
-      command: ["/bin/bash", "-c", "sleep 3600"]
+      command: ["cat"]
       tty: true
       volumeMounts:
         - name: kubectl-bin
@@ -36,7 +35,6 @@ spec:
       hostPath:
         path: /usr/local/bin/kubectl
         type: File
-
 '''
         }
     }
@@ -50,8 +48,6 @@ spec:
         KUBERNETES_SERVER = "https://192.168.0.110:6443"
         KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
-        //PATH = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin:$PATH'
-//         PATH+EXTRA = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin'
     }
 
     stages {
@@ -78,32 +74,6 @@ spec:
                 }
             }
         }
-//         stage('Install kubectl') {
-//             steps {
-//                 container('kubectl') {
-//                     script {
-//                         sh '''
-//                         set -e
-//                         ARCH=amd64
-//                         KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
-//                         curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
-//                         chmod +x kubectl
-//                         mv kubectl /usr/local/bin/
-//                         kubectl version --client
-//                         '''
-//                     }
-//                 }
-//             }
-//         }
-//         stage('Verify kubectl') {
-//             steps {
-//                 container('kubectl') {
-//                     script {
-//                         sh "kubectl version --client"
-//                     }
-//                 }
-//             }
-//         }
         stage('Build Docker Image') {
             steps {
                 container('docker') {
@@ -134,10 +104,23 @@ spec:
             steps {
                 container('kubectl') {
                     withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
-                        sh '''
-                        echo "Deploying to Kubernetes..."
-                        kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns
-                        '''
+                        script {
+                            echo "Checking Kubernetes token..."
+                            sh '''
+                            echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
+                            '''
+
+                            echo "Checking workspace directories..."
+                            sh '''
+                            ls -la /home/jenkins/agent/
+                            ls -la /home/jenkins/agent/workspace/
+                            '''
+
+                            echo "Deploying to Kubernetes..."
+                            sh '''
+                            kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns
+                            '''
+                        }
                     }
                 }
             }
@@ -146,9 +129,11 @@ spec:
             steps {
                 container('kubectl') {
                     withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
-                        sh '''
-                        kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
-                        '''
+                        script {
+                            sh '''
+                            kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
+                            '''
+                        }
                     }
                 }
             }
