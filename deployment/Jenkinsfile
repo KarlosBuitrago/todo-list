@@ -48,7 +48,7 @@ spec:
         IMAGE_TAG = "latest"
         KUBE_NAMESPACE = "default"
         KUBERNETES_SERVER = "https://192.168.0.110:6443"
-        KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
+        KUBECONFIG_CREDENTIALS_ID = 'Kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
         //PATH = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin:$PATH'
 //         PATH+EXTRA = '/opt/bitnami/kubectl/bin:/usr/local/bin:/usr/bin'
