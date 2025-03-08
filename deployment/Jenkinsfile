@@ -103,7 +103,7 @@ spec:
         stage('Deploy billing App') {
             steps {
                 container('kubectl') {
-                    withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'kubernetes-credentials', variable: 'KUBE_TOKEN')]) {
                         script {
                             echo "Checking Kubernetes token..."
                             sh '''
@@ -128,7 +128,7 @@ spec:
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
-                    withCredentials([string(credentialsId: KUBECONFIG_CREDENTIALS_ID, variable: 'KUBE_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'kubernetes-credentials', variable: 'KUBE_TOKEN')]) {
                         script {
                             sh '''
                             kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true apply -f deployment/deployment.yaml
