@@ -69,6 +69,7 @@ spec:
                 container('builder') {
                     script {
                         echo "Compiling the Java code..."
+                        sh 'chmod +x gradlew'
                         sh "./gradlew compileJava"
                     }
                 }
