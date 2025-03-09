@@ -109,7 +109,11 @@ spec:
                             sh '''
                             echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
                             '''
-
+                            sh '''
+                            echo "Verificando PATH dentro del contenedor..."
+                            echo $PATH
+                            which kubectl
+                            '''
                             echo "Checking workspace directories..."
                             sh '''
                             ls -la /home/jenkins/agent/
