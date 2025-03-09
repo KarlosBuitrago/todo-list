@@ -1,6 +1,7 @@
 pipeline {
     agent {
         kubernetes {
+            inheritFrom 'kubectl'
             yaml '''
 apiVersion: v1
 kind: Pod
