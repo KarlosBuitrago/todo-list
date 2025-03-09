@@ -1,11 +1,12 @@
 pipeline {
     agent {
         kubernetes {
+            label 'kubectl'
             yaml '''
 apiVersion: v1
 kind: Pod
 metadata:
-  name: jenkins-agent
+  name: kubectl-agent
 spec:
   containers:
     - name: builder
