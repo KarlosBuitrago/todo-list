@@ -113,7 +113,7 @@ spec:
         
                             # Extraer el token desde el kubeconfig
                             KUBE_TOKEN=$(kubectl config view --raw -o jsonpath='{.users[0].user.token}')
-                            // echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
+                            echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
                             """
                             sh '''
                             echo "Verificando PATH dentro del contenedor..."
