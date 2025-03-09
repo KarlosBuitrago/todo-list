@@ -106,9 +106,9 @@ spec:
                     withCredentials([string(credentialsId: 'kubernetes-credentials', variable: 'KUBE_TOKEN')]) {
                         script {
                             echo "Checking Kubernetes token..."
-                            sh '''
-                            echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
-                            '''
+                            // sh '''
+                            // echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
+                            // '''
                             sh '''
                             echo "Verificando PATH dentro del contenedor..."
                             echo $PATH
