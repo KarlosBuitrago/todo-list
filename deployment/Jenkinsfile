@@ -105,13 +105,14 @@ spec:
                 container('kubectl') {
                     withCredentials([string(credentialsId: 'kubernetes-credentials', variable: 'KUBE_TOKEN')]) {
                         script {
-                            echo "Checking Kubernetes token..."
-
+                            echo "Checking Kubernetes token..."                            
+                            // Guarda el kubeconfig en un archivo temporal
                             sh '''
-                            echo "KUBE_TOKEN value: $KUBE_TOKEN"
-                            '''
-                            
-                            // sh '''
+                            echo "$KUBECONFIG_CONTENT" > /tmp/kubeconfig
+                            export KUBECONFIG=/tmp/kubeconfig
+        
+                            # Extraer el token desde el kubeconfig
+                            KUBE_TOKEN=$(kubectl config view --raw -o jsonpath='{.users[0].user.token}')
                             // echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
                             // '''
                             sh '''
