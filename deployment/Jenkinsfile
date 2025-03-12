@@ -115,7 +115,7 @@ spec:
 
                     // Desplegar la aplicación
                     kubernetesDeploy(
-                        configs: 'deploymentservice.yaml',
+                        configs: 'deployment/deployment.yaml',
                         kubeconfigId: kubeconfigFile
                     )
                 }
