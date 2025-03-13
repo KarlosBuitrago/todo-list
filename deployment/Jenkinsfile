@@ -159,44 +159,44 @@ spec:
         //     }
         // }        
         
-        stage('Deploy billing App') {
-            steps {
-                container('kubectl') {
-                    withCredentials([string(credentialsId: 'kubernetes-credentials', variable: 'KUBE_TOKEN')]) {
-                        script {
-                            echo "Checking Kubernetes token..."                            
-                            // Guarda el kubeconfig en un archivo temporal
-                            def kubeconfigFile = "/tmp/kubeconfig.yaml"
-                            writeFile file: kubeconfigFile, text: KUBECONFIG_CREDENTIALS_ID
-                            sh '''
-                            # Extraer el token desde el kubeconfig
-                            KUBE_TOKEN=$(kubectl config view --raw -o jsonpath='{.users[0].user.token}')
-                            echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
-                            '''
-                            sh '''
-                            echo "Verificando PATH dentro del contenedor..."
-                            echo $PATH
-                            which kubectl
-                            '''
-                            echo "Checking workspace directories..."
-                            sh '''
-                            ls -la /home/jenkins/agent/
-                            ls -la /home/jenkins/agent/workspace/
-                            '''
-                            echo "Deploying to Kubernetes..."
-                            kubernetesApply(
-                                configs: 'deployment/deployment.yaml',
-                                kubeconfigId: kubeconfigFile
-                            )
-                            // echo "Deploying to Kubernetes..."
-                            // sh '''
-                            // kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns
-                            // '''
-                        }
-                    }
-                }
-            }
-        }
+        // stage('Deploy billing App') {
+        //     steps {
+        //         container('kubectl') {
+        //             withCredentials([string(credentialsId: 'kubernetes-credentials', variable: 'KUBE_TOKEN')]) {
+        //                 script {
+        //                     echo "Checking Kubernetes token..."                            
+        //                     // Guarda el kubeconfig en un archivo temporal
+        //                     def kubeconfigFile = "/tmp/kubeconfig.yaml"
+        //                     writeFile file: kubeconfigFile, text: KUBECONFIG_CREDENTIALS_ID
+        //                     sh '''
+        //                     # Extraer el token desde el kubeconfig
+        //                     KUBE_TOKEN=$(kubectl config view --raw -o jsonpath='{.users[0].user.token}')
+        //                     echo "KUBE_TOKEN length: $(echo -n $KUBE_TOKEN | wc -c)"
+        //                     '''
+        //                     sh '''
+        //                     echo "Verificando PATH dentro del contenedor..."
+        //                     echo $PATH
+        //                     which kubectl
+        //                     '''
+        //                     echo "Checking workspace directories..."
+        //                     sh '''
+        //                     ls -la /home/jenkins/agent/
+        //                     ls -la /home/jenkins/agent/workspace/
+        //                     '''
+        //                     echo "Deploying to Kubernetes..."
+        //                     kubernetesApply(
+        //                         configs: 'deployment/deployment.yaml',
+        //                         kubeconfigId: kubeconfigFile
+        //                     )
+        //                     // echo "Deploying to Kubernetes..."
+        //                     // sh '''
+        //                     // kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns
+        //                     // '''
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         // stage('Deploy to Kubernetes') {
         //     steps {
         //         container('kubectl') {
@@ -210,6 +210,16 @@ spec:
         //         }
         //     }
         // }
+        stage('Deploy to Kubernetes') {
+            steps {
+                container('kubectl') {
+                    script {
+                        writeFile file: '/tmp/kubeconfig.yaml', text: KUBECONFIG_CREDENTIALS_ID
+                        sh "KUBECONFIG=/tmp/kubeconfig.yaml kubectl apply -f deployment/deployment.yaml"
+                    }
+                }
+            }
+        }
     }
     post {
         success {
