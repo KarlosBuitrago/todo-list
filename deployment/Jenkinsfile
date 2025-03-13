@@ -10,6 +10,7 @@ metadata:
 spec:
   securityContext:
     runAsUser: 1001
+    runAsGroup: 1002
     fsGroup: 1002
   containers:
     - name: builder
@@ -18,23 +19,31 @@ spec:
       tty: true
       securityContext:
         runAsUser: 1001
+        runAsGroup: 1002
         fsGroup: 1002
+      volumeMounts:
+        - name: docker-home
+          mountPath: /home/jenkins
     - name: docker
       image: docker:20.10
       command: ["cat"]
       tty: true
       securityContext:
         runAsUser: 1001
+        runAsGroup: 1002
         fsGroup: 1002
       volumeMounts:
         - name: docker-sock
           mountPath: /var/run/docker.sock
+        - name: docker-home
+          mountPath: /home/jenkins
     - name: kubectl
       image: bitnami/kubectl:1.32
       command: ["cat"]
       tty: true
       securityContext:
         runAsUser: 1001
+        runAsGroup: 1002
         fsGroup: 1002
       volumeMounts:
         - name: kubectl-bin
@@ -48,6 +57,8 @@ spec:
       hostPath:
         path: /usr/local/bin/kubectl
         type: File
+    - name: docker-home
+      emptyDir: {}
 '''
         }
     }
