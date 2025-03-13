@@ -127,20 +127,17 @@ spec:
                 }
             }
         }
-        stage('Install kubectl') {
-            steps {
-                container('kubectl') {
-                    sh '''
-                    // mkdir -p /var/lib/apt/lists/partial
-                    // apt-get update || true
-                    // apt-get install -y curl || apk add --no-cache curl
-                    curl -LO "https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl"
-                    chmod +x kubectl
-                    mv kubectl /usr/local/bin/
-                    '''
-                }
-            }
-        }
+        // stage('Install kubectl') {
+        //     steps {
+        //         container('kubectl') {
+        //             sh '''
+        //             curl -LO "https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl"
+        //             chmod +x kubectl
+        //             mv kubectl /usr/local/bin/
+        //             '''
+        //         }
+        //     }
+        // }
         stage('Deploy to Kubernetes') {
             steps {
                 script {
