@@ -69,7 +69,7 @@ spec:
         IMAGE_NAME = "todolistcarlos"
         IMAGE_TAG = "latest"
         KUBE_NAMESPACE = "default"
-        KUBERNETES_SERVER = "https://192.168.0.110:6443"
+        KUBERNETES_SERVER = "https://192.168.0.110:16443"
         KUBECONFIG_CREDENTIALS_ID = credentials('kubernetes-credentials')
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
         DOCKER_CONFIG = "/home/jenkins/.docker"
