@@ -18,7 +18,7 @@ spec:
         - name: regcred  # <-- Se agrega la Secret aquí
       containers:
         - name: todolistcarlos
-          image: 192.168.0.100:32500/todolistcarlos:latest
+          image: 192.168.0.110:32500/todolistcarlos:latest
           ports:
             - containerPort: 8080
           env:
