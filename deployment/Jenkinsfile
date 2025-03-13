@@ -145,10 +145,10 @@ spec:
                         // Guardar el kubeconfig en un archivo temporal
                         def kubeconfigFile = "/tmp/kubeconfig.yaml"
                         writeFile file: kubeconfigFile, text: KUBECONFIG_CREDENTIALS_ID
-    
+        
                         // Usar kubectl con el archivo
                         sh "KUBECONFIG=${kubeconfigFile} kubectl get nodes"
-    
+        
                         // Desplegar la aplicación
                         kubernetesDeploy(
                             configs: 'deployment/deployment.yaml',
