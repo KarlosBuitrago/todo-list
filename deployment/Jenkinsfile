@@ -127,7 +127,17 @@ spec:
                 }
             }
         }
-        
+        stage('Install kubectl') {
+            steps {
+                container('kubectl') {
+                    sh '''
+                    curl -LO "https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl"
+                    chmod +x kubectl
+                    mv kubectl /usr/local/bin/
+                    '''
+                }
+            }
+        }
         stage('Deploy to Kubernetes') {
             steps {
                 script {
@@ -146,17 +156,7 @@ spec:
                 }
             }
         }        
-        // stage('Install kubectl') {
-        //     steps {
-        //         container('kubectl') {
-        //             sh '''
-        //             curl -LO "https://dl.k8s.io/release/v1.32.0/bin/linux/amd64/kubectl"
-        //             chmod +x kubectl
-        //             mv kubectl /usr/local/bin/
-        //             '''
-        //         }
-        //     }
-        // }
+        
         // stage('Deploy billing App') {
         //     steps {
         //         container('kubectl') {
