@@ -8,15 +8,24 @@ kind: Pod
 metadata:
   name: kubectl-agent
 spec:
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 1000
   containers:
     - name: builder
       image: gradle:7.6.2-jdk17
       command: ["cat"]
       tty: true
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
     - name: docker
       image: docker:20.10
       command: ["cat"]
       tty: true
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
       volumeMounts:
         - name: docker-sock
           mountPath: /var/run/docker.sock
@@ -24,6 +33,9 @@ spec:
       image: bitnami/kubectl:1.32
       command: ["cat"]
       tty: true
+      securityContext:
+        runAsUser: 1000
+        fsGroup: 1000
       volumeMounts:
         - name: kubectl-bin
           mountPath: /usr/local/bin/kubectl
