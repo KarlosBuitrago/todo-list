@@ -183,11 +183,15 @@ spec:
                             ls -la /home/jenkins/agent/
                             ls -la /home/jenkins/agent/workspace/
                             '''
-
                             echo "Deploying to Kubernetes..."
-                            sh '''
-                            kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns
-                            '''
+                            kubernetesDeploy(
+                                configs: 'deployment/deployment.yaml',
+                                kubeconfigId: kubeconfigFile
+                            )
+                            // echo "Deploying to Kubernetes..."
+                            // sh '''
+                            // kubectl --token $KUBE_TOKEN --server ${KUBERNETES_SERVER} --insecure-skip-tls-verify=true get ns
+                            // '''
                         }
                     }
                 }
