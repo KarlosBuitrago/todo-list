@@ -105,6 +105,8 @@ spec:
                     script {
                         echo "Building Docker Image..."
                         sh """
+                        export DOCKER_CONFIG=/home/jenkins/.docker
+                        mkdir -p $DOCKER_CONFIG
                         docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
                         """
                     }
