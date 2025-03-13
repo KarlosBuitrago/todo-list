@@ -111,7 +111,7 @@ spec:
                     writeFile file: kubeconfigFile, text: KUBECONFIG_CREDENTIALS_ID
 
                     // Usar kubectl con el archivo
-                    sh "KUBECONFIG=${kubeconfigFile} kubectl get nodes"
+                    sh "KUBECONFIG=${kubeconfigFile} microk8 kubectl get nodes"
 
                     // Desplegar la aplicación
                     kubernetesDeploy(
