@@ -8,19 +8,11 @@ kind: Pod
 metadata:
   name: kubectl-agent
 spec:
-  securityContext:
-    runAsUser: 1001
-    runAsGroup: 1002
-    fsGroup: 1002
   containers:
     - name: builder
       image: gradle:7.6.2-jdk17
       command: ["cat"]
       tty: true
-      securityContext:
-        runAsUser: 1001
-        runAsGroup: 1002
-        fsGroup: 1002
       volumeMounts:
         - name: docker-home
           mountPath: /home/jenkins
@@ -28,10 +20,6 @@ spec:
       image: docker:20.10
       command: ["cat"]
       tty: true
-      securityContext:
-        runAsUser: 1001
-        runAsGroup: 1002
-        fsGroup: 1002
       volumeMounts:
         - name: docker-sock
           mountPath: /var/run/docker.sock
@@ -41,10 +29,6 @@ spec:
       image: docker.io/bitnami/kubectl:1.27
       command: ["cat"]
       tty: true
-      securityContext:
-        runAsUser: 1001
-        runAsGroup: 1002
-        fsGroup: 1002
       volumeMounts:
         - name: kubectl-bin
           mountPath: /usr/local/bin/kubectl
