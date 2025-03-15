@@ -32,8 +32,4 @@ sonar {
     }
 }
 
-test {
-    jvmArgs += "-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains('mockito-inline') }}"
-}
-
 apply from: './main.gradle'
