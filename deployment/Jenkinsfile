@@ -13,42 +13,48 @@ spec:
     runAsGroup: 1002
     fsGroup: 1002
   containers:
-    - name: builder
-      image: gradle:7.6.2-jdk17
-      command: ["cat"]
-      tty: true
-      volumeMounts:
-        - name: docker-home
-          mountPath: /home/jenkins
-    - name: docker
-      image: docker:20.10
-      command: ["cat"]
-      tty: true
-      volumeMounts:
-        - name: docker-sock
-          mountPath: /var/run/docker.sock
-        - name: docker-home
-          mountPath: /home/jenkins
-    - name: kubectl
-      image: docker.io/bitnami/kubectl:1.27
-      command: ["cat"]
-      tty: true
-      volumeMounts:
-        - name: kubectl-bin
-          mountPath: /usr/local/bin/kubectl
+  - name: builder
+    image: gradle:7.6.2-jdk17
+    command: ["cat"]
+    tty: true
+    volumeMounts:
+      - name: docker-home
+        mountPath: /home/jenkins
+  - name: docker
+    image: docker:20.10
+    command: ["cat"]
+    tty: true
+    volumeMounts:
+      - name: docker-sock
+        mountPath: /var/run/docker.sock
+      - name: docker-home
+        mountPath: /home/jenkins
+  - name: kubectl
+    image: docker.io/bitnami/kubectl:1.27
+    command: ["cat"]
+    tty: true
+    volumeMounts:
+      - name: kubectl-bin
+        mountPath: /usr/local/bin/kubectl
+      - name: kubeconfig
+        mountPath: /kubeconfig
   volumes:
-    - name: docker-sock
-      hostPath:
-        path: /var/run/docker.sock
-        type: Socket
-    - name: kubectl-bin
-      hostPath:
-        path: /usr/local/bin/kubectl
-        type: File
-    - name: docker-home
-      hostPath:
-        path: /mnt/data/jenkins_home
-        type: DirectoryOrCreate
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+      type: Socket
+  - name: kubectl-bin
+    hostPath:
+      path: /usr/local/bin/kubectl
+      type: File
+  - name: docker-home
+    hostPath:
+      path: /mnt/data/jenkins_home
+      type: DirectoryOrCreate
+  - name: kubeconfig
+    hostPath:
+      path: /home/jenkins/kubeconfig.yaml
+      type: File
 '''
         }
     }
@@ -122,17 +128,10 @@ spec:
             steps {
                 container('kubectl') {
                     script {
-                        withCredentials([string(credentialsId: 'kubernetes-credentials', variable: 'KUBECONFIG_TEXT')]) {
-                            echo "Longitud de KUBECONFIG_TEXT: ${KUBECONFIG_TEXT.length()}"
-                            writeFile file: './kubeconfig.yaml', text: KUBECONFIG_TEXT
-                            sh "ls -l ."
-                            sh "grep 'apiVersion: v1' ./kubeconfig.yaml || echo 'No se encontró apiVersion'"
-                            sh "grep 'clusters:' ./kubeconfig.yaml || echo 'No se encontró clusters'"
-                            sh "grep 'contexts:' ./kubeconfig.yaml || echo 'No se encontró contexts'"
-                            sh "kubectl config view --kubeconfig=./kubeconfig.yaml || echo 'Error al parsear kubeconfig'"
+                        sh "ls -l /kubeconfig"
+                            sh "kubectl config view --kubeconfig=/kubeconfig/kubeconfig.yaml"
                             sh "cat deployment/deployment.yaml"
-                            sh "KUBECONFIG=./kubeconfig.yaml kubectl apply -f deployment/deployment.yaml"
-                        }
+                            sh "KUBECONFIG=/kubeconfig/kubeconfig.yaml kubectl apply -f deployment/deployment.yaml"
                     }
                 }
             }
