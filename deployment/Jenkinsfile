@@ -8,10 +8,6 @@ kind: Pod
 metadata:
   name: kubectl-agent
 spec:
-  securityContext:
-    runAsUser: 1001
-    runAsGroup: 1002
-    fsGroup: 1002
   containers:
     - name: builder
       image: gradle:7.6.2-jdk17
