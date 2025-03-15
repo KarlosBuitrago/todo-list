@@ -126,7 +126,9 @@ spec:
                             echo "Longitud de KUBECONFIG_TEXT: ${KUBECONFIG_TEXT.length()}"
                             writeFile file: './kubeconfig.yaml', text: KUBECONFIG_TEXT
                             sh "ls -l ."
-                            sh "cat ./kubeconfig.yaml"
+                            sh "grep 'apiVersion: v1' ./kubeconfig.yaml || echo 'No se encontró apiVersion'"
+                            sh "grep 'clusters:' ./kubeconfig.yaml || echo 'No se encontró clusters'"
+                            sh "grep 'contexts:' ./kubeconfig.yaml || echo 'No se encontró contexts'"
                             sh "kubectl config view --kubeconfig=./kubeconfig.yaml || echo 'Error al parsear kubeconfig'"
                             sh "cat deployment/deployment.yaml"
                             sh "KUBECONFIG=./kubeconfig.yaml kubectl apply -f deployment/deployment.yaml"
