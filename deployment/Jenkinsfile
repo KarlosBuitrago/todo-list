@@ -60,7 +60,7 @@ spec:
         IMAGE_TAG = "latest"
         KUBE_NAMESPACE = "default"
         KUBERNETES_SERVER = "https://192.168.0.110:16443"
-        KUBECONFIG_CREDENTIALS_ID = credentials('kubernetes-credentials')
+        KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
         DOCKER_CONFIG = "/tmp/docker-config"
     }
@@ -95,7 +95,6 @@ spec:
                 container('docker') {
                     script {
                         echo "Building Docker Image..."
-                        // mkdir -p $DOCKER_CONFIG
                         sh """
                         mkdir -p ${DOCKER_CONFIG}
                         docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
@@ -110,6 +109,7 @@ spec:
                     script {
                         withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                             sh """
+                            mkdir -p ${DOCKER_CONFIG}
                             echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin
                             docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
                             """
@@ -127,7 +127,7 @@ spec:
                             writeFile file: './kubeconfig.yaml', text: KUBECONFIG_TEXT
                             sh "ls -l ."
                             sh "cat ./kubeconfig.yaml"
-                            sh "kubectl config view --kubeconfig=./kubeconfig.yaml"
+                            sh "kubectl config view --kubeconfig=./kubeconfig.yaml || echo 'Error al parsear kubeconfig'"
                             sh "cat deployment/deployment.yaml"
                             sh "KUBECONFIG=./kubeconfig.yaml kubectl apply -f deployment/deployment.yaml"
                         }
