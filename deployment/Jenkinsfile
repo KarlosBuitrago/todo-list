@@ -18,26 +18,26 @@ spec:
     command: ["cat"]
     tty: true
     volumeMounts:
-      - name: docker-home
-        mountPath: /home/jenkins
+    - name: docker-home
+      mountPath: /home/jenkins
   - name: docker
     image: docker:20.10
     command: ["cat"]
     tty: true
     volumeMounts:
-      - name: docker-sock
-        mountPath: /var/run/docker.sock
-      - name: docker-home
-        mountPath: /home/jenkins
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+    - name: docker-home
+      mountPath: /home/jenkins
   - name: kubectl
     image: docker.io/bitnami/kubectl:1.27
     command: ["cat"]
     tty: true
     volumeMounts:
-      - name: kubectl-bin
-        mountPath: /usr/local/bin/kubectl
-      - name: kubeconfig
-        mountPath: /kubeconfig
+    - name: kubectl-bin
+      mountPath: /usr/local/bin/kubectl
+    - name: kubeconfig
+      mountPath: /kubeconfig
   volumes:
   - name: docker-sock
     hostPath:
@@ -66,7 +66,6 @@ spec:
         IMAGE_TAG = "latest"
         KUBE_NAMESPACE = "default"
         KUBERNETES_SERVER = "https://192.168.0.110:16443"
-        KUBECONFIG_CREDENTIALS_ID = 'kubernetes-credentials'
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
         DOCKER_CONFIG = "/tmp/docker-config"
     }
@@ -127,7 +126,7 @@ spec:
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
-                     script {
+                    script {
                         sh "ls -l /kubeconfig"
                         sh "kubectl config view --kubeconfig=/kubeconfig"
                         sh "cat deployment/deployment.yaml"
