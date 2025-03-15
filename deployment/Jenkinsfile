@@ -127,10 +127,11 @@ spec:
         stage('Deploy to Kubernetes') {
             steps {
                 container('kubectl') {
-                     sh "ls -l /kubeconfig"
-                        sh "kubectl config view --kubeconfig=/kubeconfig"  // Ruta corregida
+                     script {
+                        sh "ls -l /kubeconfig"
+                        sh "kubectl config view --kubeconfig=/kubeconfig"
                         sh "cat deployment/deployment.yaml"
-                        sh "KUBECONFIG=/kubeconfig kubectl apply -f deployment/deployment.yaml"  // Ruta corregida
+                        sh "KUBECONFIG=/kubeconfig kubectl apply -f deployment/deployment.yaml"
                     }
                 }
             }
