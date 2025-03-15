@@ -29,6 +29,10 @@ spec:
       image: docker.io/bitnami/kubectl:1.27
       command: ["cat"]
       tty: true
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1002
+        fsGroup: 1002
       volumeMounts:
         - name: kubectl-bin
           mountPath: /usr/local/bin/kubectl
