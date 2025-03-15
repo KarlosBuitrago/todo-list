@@ -28,10 +28,6 @@ spec:
       image: docker:20.10
       command: ["cat"]
       tty: true
-      securityContext:
-        runAsUser: 1001
-        runAsGroup: 1002
-        fsGroup: 1002
       volumeMounts:
         - name: docker-sock
           mountPath: /var/run/docker.sock
