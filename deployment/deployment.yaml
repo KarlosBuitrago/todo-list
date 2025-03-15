@@ -19,17 +19,18 @@ spec:
       labels:
         app: todolistcarlos
     spec:
+      securityContext:
+        fsGroup: 1002  # Movido aquí
       imagePullSecrets:
         - name: regcred
       containers:
         - name: todolistcarlos
-          image: 192.168.0.110:32500/todolistcarlos:latest  # Considera usar un tag específico
+          image: 192.168.0.110:32500/todolistcarlos:latest
           ports:
             - containerPort: 8080
           securityContext:
-            runAsUser: 1001  # Alineado con Jenkins UID
+            runAsUser: 1001
             runAsGroup: 1002
-            fsGroup: 1002
           volumeMounts:
             - mountPath: "/tmp"
               name: tmp-volume
@@ -42,13 +43,13 @@ spec:
               cpu: "500m"
           livenessProbe:
             httpGet:
-              path: /health  # Ajusta según tu app
+              path: /health
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /health  # Ajusta según tu app
+              path: /health
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
