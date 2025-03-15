@@ -8,6 +8,11 @@ kind: Pod
 metadata:
   name: kubectl-agent
 spec:
+  securityContext:
+    runAsUser: 1001
+    runAsGroup: 1002
+    fsGroup: 1002
+    fsGroupChangePolicy: "Always"
   containers:
     - name: builder
       image: gradle:7.6.2-jdk17
@@ -42,7 +47,10 @@ spec:
         path: /usr/local/bin/kubectl
         type: File
     - name: docker-home
-      emptyDir: {}
+      hostPath:
+        path: /var/lib/jenkins
+        type: DirectoryOrCreate
+
 '''
         }
     }
