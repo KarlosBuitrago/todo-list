@@ -99,7 +99,6 @@ spec:
                         echo "Building Docker Image..."
                         // mkdir -p $DOCKER_CONFIG
                         sh """ 
-                        mkdir -p $DOCKER_CONFIG
                         docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
                         """
                     }
