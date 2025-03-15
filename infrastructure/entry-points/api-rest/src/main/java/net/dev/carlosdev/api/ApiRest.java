@@ -2,6 +2,7 @@ package net.dev.carlosdev.api;
 import lombok.AllArgsConstructor;
 import net.dev.carlosdev.model.tasks.Tasks;
 import net.dev.carlosdev.usecase.managetasks.ManageTasksUseCase;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/v1/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 public class ApiRest {
-
+    @Autowired
     private final ManageTasksUseCase manageTasksUseCase;
 
     @GetMapping("/all")

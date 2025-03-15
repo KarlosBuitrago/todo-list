@@ -1,5 +1,7 @@
 package net.dev.carlosdev.jpa.helper;
 
+import net.dev.carlosdev.jpa.jpa.TasksDto;
+import net.dev.carlosdev.model.tasks.Tasks;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.data.domain.Example;
 import org.springframework.data.repository.CrudRepository;
@@ -61,11 +63,10 @@ public abstract class AdapterOperations<E, D, I, R extends CrudRepository<D, I> 
     }
 
     public List<E> findByExample(E entity) {
-        return toList(repository.findAll( Example.of(toData(entity))));
+        return toList(repository.findAll(Example.of(toData(entity))));
     }
 
-
-    public List<E> findAll(){
+    public List<E> findAll() {
         return toList(repository.findAll());
     }
 }
