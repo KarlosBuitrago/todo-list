@@ -124,7 +124,7 @@ spec:
                     script {
                         withCredentials([string(credentialsId: 'kubernetes-credentials', variable: 'KUBECONFIG_TEXT')]) {
                             writeFile file: '/tmp/kubeconfig.yaml', text: KUBECONFIG_TEXT
-                            sh "cat deployment/deployment.yaml"  # Para depurar el YAML
+                            sh "cat deployment/deployment.yaml" 
                             sh "KUBECONFIG=/tmp/kubeconfig.yaml kubectl apply -f deployment/deployment.yaml"
                     
                     }
