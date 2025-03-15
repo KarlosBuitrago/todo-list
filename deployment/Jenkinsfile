@@ -90,7 +90,7 @@ spec:
                     script {
                         echo "Compiling the Java code..."
                         sh 'chmod +x gradlew'
-                        sh "./gradlew compileJava"
+                        sh "./gradlew build"
                     }
                 }
             }
