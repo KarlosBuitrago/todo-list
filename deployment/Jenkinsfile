@@ -64,7 +64,7 @@ spec:
         KUBERNETES_SERVER = "https://192.168.0.110:16443"
         KUBECONFIG_CREDENTIALS_ID = credentials('kubernetes-credentials')
         DOCKER_CREDENTIALS_ID = 'secret-private-registry'
-        // DOCKER_CONFIG = "/home/jenkins/.docker"
+        DOCKER_CONFIG = "/home/jenkins/.docker"
     }
 
     stages {
@@ -98,7 +98,8 @@ spec:
                     script {
                         echo "Building Docker Image..."
                         // mkdir -p $DOCKER_CONFIG
-                        sh """                        
+                        sh """ 
+                        mkdir -p $DOCKER_CONFIG
                         docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} -f deployment/Dockerfile .
                         """
                     }
