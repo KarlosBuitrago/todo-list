@@ -2,15 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: todolistcarlos-deployment
-  labels:
-    app: todolistcarlos
+  namespace: jenkins-ci-cd
 spec:
   replicas: 1
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
   selector:
     matchLabels:
       app: todolistcarlos
@@ -19,40 +13,35 @@ spec:
       labels:
         app: todolistcarlos
     spec:
-      securityContext:
-        fsGroup: 1002  # Movido aquí
-      imagePullSecrets:
-        - name: regcred
       containers:
         - name: todolistcarlos
           image: 192.168.0.110:32500/todolistcarlos:latest
           ports:
             - containerPort: 8080
-          securityContext:
-            runAsUser: 1001
-            runAsGroup: 1002
-          volumeMounts:
-            - mountPath: "/tmp"
-              name: tmp-volume
           resources:
-            requests:
-              memory: "256Mi"
-              cpu: "200m"
             limits:
-              memory: "512Mi"
               cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
           livenessProbe:
             httpGet:
-              path: /health
+              path: /actuator/health  # Cambia a /actuator/health
               port: 8080
             initialDelaySeconds: 30
+            timeoutSeconds: 1
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /health
+              path: /actuator/health  # Cambia a /actuator/health
               port: 8080
             initialDelaySeconds: 5
+            timeoutSeconds: 1
             periodSeconds: 5
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmp
       volumes:
         - name: tmp-volume
           emptyDir: {}
