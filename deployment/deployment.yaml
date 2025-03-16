@@ -13,11 +13,18 @@ spec:
       labels:
         app: todolistcarlos
     spec:
+      securityContext:
+        fsGroup: 1002  # Movido aquí
+      imagePullSecrets:
+        - name: regcred
       containers:
         - name: todolistcarlos
           image: 192.168.0.110:32500/todolistcarlos:latest
           ports:
             - containerPort: 8080
+          securityContext:
+            runAsUser: 1001
+            runAsGroup: 1002
           resources:
             limits:
               cpu: "500m"
