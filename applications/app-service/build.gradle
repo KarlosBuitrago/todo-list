@@ -17,7 +17,7 @@ dependencies {
 }
 
 springBoot {
-    mainClass = 'net.dev.carlosdev.MainApplication'  // Ajusta al nombre real
+    mainClass = 'net.dev.carlosdev.MainApplication'
 }
 
 tasks.register('explodedJar', Copy) {
