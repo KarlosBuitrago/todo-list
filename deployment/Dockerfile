@@ -1,7 +1,7 @@
 FROM eclipse-temurin:17-jdk-alpine
 VOLUME /tmp
 EXPOSE 8080
-COPY *.jar TodoListCarlos.jar
+COPY applications/app-service/build/libs/TodoListCarlos.jar TodoListCarlos.jar
 ENV JAVA_OPTS=" -Xshareclasses:name=cacheapp,cacheDir=/cache,nonfatal -XX:+UseContainerSupport -XX:MaxRAMPercentage=70 -Djava.security.egd=file:/dev/./urandom"
 RUN adduser -D appuser
 USER appuser
